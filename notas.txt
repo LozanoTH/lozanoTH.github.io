@@ -1,0 +1,32 @@
+recursos globales 
+
+
+<div id="header"></div>
+
+<script>
+  fetch("./utilidades/hedder.html")
+    .then(r => r.text())
+    .then(t => {
+      header.innerHTML = t;
+      
+      const menu = document.getElementById("menu");
+      const btn = document.getElementById("btn");
+      const overlay = document.getElementById("overlay");
+      const salir = document.getElementById("salir");
+      
+      btn.onclick = () => {
+        menu.style.left = "0";
+        overlay.style.display = "block";
+      };
+      
+      overlay.onclick = () => {
+        menu.style.left = "-250px";
+        overlay.style.display = "none";
+      };
+      
+      salir.onclick = () => {
+        localStorage.clear();
+        location.href = "index.html";
+      };
+    });
+</script>

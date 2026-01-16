@@ -1,0 +1,46 @@
+<style>
+#btn{
+  position:fixed;
+  top:15px;
+  left:15px;
+  font-size:30px;
+  cursor:pointer;
+  z-index:10;
+}
+#menu{
+  position:fixed;
+  top:0;
+  left:-250px;
+  width:250px;
+  height:100%;
+  background:#111;
+  color:#fff;
+  transition:left .3s;
+  padding-top:60px;
+  z-index:10;
+}
+#menu a{
+  display:block;
+  padding:15px;
+  color:#fff;
+  text-decoration:none;
+}
+#menu a:hover{background:#333}
+#overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.4);
+  display:none;
+  z-index:5;
+}
+</style>
+
+<span id="btn">☰</span>
+<div id="overlay"></div>
+
+<div id="menu">
+  <a href="/home.html">Perfil</a>
+  <a href="/chat.html">chat</a>
+  <a href="#">Experimental</a>
+  <a href="#" id="salir">Salir</a>
+</div>

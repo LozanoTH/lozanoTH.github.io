@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+</head>
+<body>
+<h1>login</h1>
+
+<input id="user" placeholder="Usuario">
+<br><br>
+<input id="pass" type="password" placeholder="Contraseña">
+<br><br>
+<button onclick="login()">Entrar</button>
+
+<p id="msg"></p>
+
+<script>
+async function login() {
+  const u = user.value;
+  const p = pass.value;
+
+  const res = await fetch("https://raw.githubusercontent.com/LozanoTH/mdb/refs/heads/main/user.json");
+  const data = await res.json();
+
+  const ok = data.find(x => x.user === u && x.pass === p);
+
+  if (ok) {
+    localStorage.setItem("auth", "true");
+    localStorage.setItem("user", u);
+    window.location.href = "home.html";
+  } else {
+    msg.textContent = "Usuario o contraseña incorrecta";
+  }
+}
+</script>
+
+</body>
+</html>

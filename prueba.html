@@ -1,0 +1,34 @@
+<input id="target" placeholder="https://ejemplo.com">
+<button onclick="createRedirect()">Generar link</button>
+
+
+<p id="out"></p>
+
+<script>
+const out = document.getElementById("out");
+
+async function createRedirect() {
+  const target = document.getElementById("target").value.trim();
+  if (!target.startsWith("http")) return;
+
+  const token = "page_" + Date.now();
+
+  const data = {
+    user: localStorage.getItem("user"),
+    redirect: target,
+    views: 0,
+    createdAt: Date.now()
+  };
+
+  await fetch(
+    `https://lozano-1690859356322-default-rtdb.firebaseio.com/pages/${token}.json`,
+    {
+      method: "PUT",
+      body: JSON.stringify(data)
+    }
+  );
+
+  const link = `${location.origin}${location.pathname.replace("prueba.html","")}view.html?id=${token}`;
+  out.textContent = link;
+}
+</script>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>App</title>
+
+
+
+
+
+<div id="header"></div>
+
+<script>
+  fetch("./utilidades/hedder.html")
+    .then(r => r.text())
+    .then(t => {
+      header.innerHTML = t;
+      
+      const menu = document.getElementById("menu");
+      const btn = document.getElementById("btn");
+      const overlay = document.getElementById("overlay");
+      const salir = document.getElementById("salir");
+      
+      btn.onclick = () => {
+        menu.style.left = "0";
+        overlay.style.display = "block";
+      };
+      
+      overlay.onclick = () => {
+        menu.style.left = "-250px";
+        overlay.style.display = "none";
+      };
+      
+      salir.onclick = () => {
+        localStorage.clear();
+        location.href = "index.html";
+      };
+    });
+</script>
+
+
+
+
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+</style>
+</head>
+<body>
+
+<script>
+if (localStorage.getItem("auth") !== "true") {
+  location.href = "index.html";
+}
+</script>
+<div>
+  <h1>Bienvenidos 👋</h1>
+  <p style="text-align:center;font-size:20px">
+    <b id="u"></b>
+  </p>
+</div>
+<script>
+u.textContent = localStorage.getItem("user");
+</script>
+
+</body>
+</html>
