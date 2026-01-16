@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+<meta charset="UTF-8">
+<title>redirect</title>
+</head>
+<body>
+
+<script>
+(async () => {
+  const id = new URLSearchParams(location.search).get("id");
+  if (!id) {
+    console.log("sin id");
+    return;
+  }
+
+  const url = `https://lozano-1690859356322-default-rtdb.firebaseio.com/pages/${id}.json`;
+
+  const res = await fetch(url);
+  const data = await res.json();
+
+  if (!data || !data.redirect) {
+    console.log("sin datos o sin redirect", data);
+    return;
+  }
+
+  data.views++;
+
+  await fetch(url, {
+    method: "PUT",
+    body: JSON.stringify(data)
+  });
+
+  location.replace(data.redirect);
+})();
+</script>
+
+</body>
+</html>
