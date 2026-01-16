@@ -1,35 +1,452 @@
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<input id="target" placeholder="https://ejemplo.com">
-<button onclick="createRedirect()">Generar link</button>
+<!DOCTYPE html>
+<html lang="es">
 
-
-<p id="out"></p>
-
-<script>
-const out = document.getElementById("out");
-
-async function createRedirect() {
-  const target = document.getElementById("target").value.trim();
-  if (!target.startsWith("http")) return;
-
-  const token = "page_" + Date.now();
-
-  const data = {
-    user: localStorage.getItem("user"),
-    redirect: target,
-    views: 0,
-    createdAt: Date.now()
-  };
-
-  await fetch(
-    `https://lozano-1690859356322-default-rtdb.firebaseio.com/pages/${token}.json`,
-    {
-      method: "PUT",
-      body: JSON.stringify(data)
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de Links</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding-top: 60px;
+      /* Header space handled globally, but ensuring consistancy */
+      background-color: #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-  );
 
-  const link = `${location.origin}${location.pathname.replace("prueba.html","")}view.html?id=${token}`;
-  out.textContent = link;
-}
-</script>
+    .container {
+      width: 100%;
+      max-width: 600px;
+      padding: 20px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      margin-top: 10px;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #333;
+      font-size: 1.5rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 15px 0;
+      box-sizing: border-box;
+      border: 2px solid #eee;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: 0.3s;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #007bff;
+    }
+
+    button {
+      padding: 12px 25px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      width: 100%;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #out {
+      margin-top: 20px;
+      word-break: break-all;
+      color: #333;
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px dashed #ccc;
+      display: none;
+      /* Hide until content exists */
+    }
+
+    #out:not(:empty) {
+      display: block;
+    }
+
+    /* History Styles */
+    .history-item {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .history-item .info {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      margin-right: 10px;
+    }
+
+    .short-link {
+      font-weight: bold;
+      color: #007bff;
+      cursor: pointer;
+      word-break: break-all;
+    }
+
+    .target-link {
+      font-size: 12px;
+      color: #777;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+
+    .copy-btn {
+      background: #eee;
+      color: #333;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      width: auto;
+    }
+
+    .copy-btn:active {
+      background: #ddd;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="header"></div>
+
+  <div class="container">
+    <div class="card">
+      <h2>Acortador de Links</h2>
+      <p style="color:#666; margin-bottom:20px;">Crea enlaces cortos y rastreables.</p>
+      <input id="target" placeholder="https://ejemplo.com">
+      <button onclick="createRedirect()">Generar Link</button>
+      <p id="out"></p>
+    </div>
+
+    <div id="history-container" style="display:none; width: 100%; text-align: left; margin-top: 20px;">
+      <h3 style="color:#555; margin-left:10px;">Mis Links Recientes</h3>
+      <div id="history-list"></div>
+    </div>
+  </div>
+
+  <script>
+    // Cargar el header
+    fetch("./utilidades/hedder.html")
+      .then(r => r.text())
+      .then(t => {
+        document.getElementById("header").innerHTML = t;
+
+        const menu = document.getElementById("menu");
+        const btn = document.getElementById("btn");
+        const overlay = document.getElementById("overlay");
+        const salir = document.getElementById("salir");
+
+        if (btn && menu && overlay) {
+          btn.onclick = () => {
+            menu.style.left = "0";
+            overlay.style.display = "block";
+          };
+
+          overlay.onclick = () => {
+            menu.style.left = "-250px";
+            overlay.style.display = "none";
+          };
+        }
+
+        if (salir) {
+          salir.onclick = () => {
+            localStorage.clear();
+            location.href = "index.html";
+          };
+        }
+      });
+
+    // Modals y UI Elements
+    const out = document.getElementById("out");
+    const historyList = document.getElementById("history-list");
+
+    // Crear Modal dinámicamente si no existe
+    if (!document.getElementById("stats-modal")) {
+      const modalHtml = `
+            <div id="stats-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal()">&times;</span>
+                    <h3>Estadísticas del Link</h3>
+                    <div id="stats-loading">Cargando...</div>
+                    <div id="stats-body" style="display:none">
+                        <p><strong>Total Vistas:</strong> <span id="stats-views">0</span></p>
+                        <h4>Últimos accesos:</h4>
+                        <ul id="stats-logs" style="text-align:left; max-height:200px; overflow-y:auto; padding-left:20px; font-size:14px; color:#555;"></ul>
+                    </div>
+                </div>
+            </div>
+        `;
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+
+    // Estilos del Modal
+    const modalStyle = document.createElement('style');
+    modalStyle.innerHTML = `
+        .modal {
+            display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px);
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background-color: white; padding: 20px; border-radius: 12px;
+            width: 90%; max-width: 400px; position: relative; text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: slideUp 0.3s;
+        }
+        .close-modal {
+            position: absolute; right: 15px; top: 10px; font-size: 24px; cursor: pointer; color: #aaa;
+        }
+        @keyframes slideUp { from {transform: translateY(20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+        .stats-btn {
+            background: #17a2b8; color: white; border: none; padding: 8px 12px;
+            border-radius: 6px; cursor: pointer; font-size: 12px; margin-left: 5px;
+        }
+        .stats-btn:active { background: #138496; }
+        
+        .delete-btn {
+            background: #dc3545; color: white; border: none; padding: 8px 12px;
+            border-radius: 6px; cursor: pointer; font-size: 12px; margin-left: 5px;
+        }
+        .delete-btn:active { background: #c82333; }
+    `;
+    document.head.appendChild(modalStyle);
+
+    // Cargar historial al iniciar
+    renderHistory();
+
+    async function createRedirect() {
+      const target = document.getElementById("target").value.trim();
+      if (!target.startsWith("http")) {
+        alert("Por favor ingresa una URL válida que empiece con http o https");
+        return;
+      }
+
+      const token = "page_" + Date.now();
+
+      const data = {
+        user: localStorage.getItem("user") || "anonymous",
+        redirect: target,
+        views: 0,
+        createdAt: Date.now()
+      };
+
+      try {
+        await fetch(
+          `https://lozano-1690859356322-default-rtdb.firebaseio.com/pages/${token}.json`,
+          {
+            method: "PUT",
+            body: JSON.stringify(data)
+          }
+        );
+
+        const link = `${location.origin}${location.pathname.replace("vis.html", "")}ver.html?id=${token}`;
+        out.innerHTML = `<a href="${link}" target="_blank">${link}</a>`;
+
+        // Guardar en historial local
+        saveToHistory({ link, target, token, date: new Date().toLocaleDateString() });
+
+      } catch (e) {
+        console.error(e);
+        out.textContent = "Error al crear el link";
+      }
+    }
+
+    function saveToHistory(item) {
+      let history = JSON.parse(localStorage.getItem("link_history") || "[]");
+      history.unshift(item); // Añadir al principio
+      if (history.length > 20) history.pop(); // Mantener solo los últimos 20
+      localStorage.setItem("link_history", JSON.stringify(history));
+      renderHistory();
+    }
+
+    // Función para eliminar link
+    async function deleteLink(token) {
+      if (!confirm("¿Estás seguro de eliminar este enlace?")) return;
+
+      const currentUser = localStorage.getItem("user");
+      const url = `https://lozano-1690859356322-default-rtdb.firebaseio.com/pages/${token}.json`;
+
+      try {
+        // 1. Verificar propiedad
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data) {
+          alert("El enlace ya no existe.");
+          removeFromHistory(token);
+          return;
+        }
+
+        if (data.user && data.user !== currentUser) {
+          alert("⛔ No tienes permiso para eliminar este enlace. Solo el creador puede hacerlo.");
+          return;
+        }
+
+        // 2. Eliminar si es el dueño
+        await fetch(url, {
+          method: "DELETE"
+        });
+
+        // 3. Eliminar de localStorage
+        removeFromHistory(token);
+
+        alert("Enlace eliminado correctamente.");
+      } catch (e) {
+        console.error(e);
+        alert("Error al eliminar. Verifique su conexión.");
+      }
+    }
+
+    function removeFromHistory(token) {
+      let history = JSON.parse(localStorage.getItem("link_history") || "[]");
+      history = history.filter(item => item.token !== token);
+      localStorage.setItem("link_history", JSON.stringify(history));
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const history = JSON.parse(localStorage.getItem("link_history") || "[]");
+      const container = document.getElementById("history-container");
+
+      if (history.length === 0) {
+        container.style.display = "none";
+        return;
+      }
+      container.style.display = "block";
+
+      const list = document.getElementById("history-list");
+      list.innerHTML = "";
+
+      history.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "history-item";
+        div.innerHTML = `
+          <div class="info">
+            <span class="short-link" onclick="window.open('${item.link}')">${item.link}</span>
+            <span class="target-link">➡ ${item.target}</span>
+          </div>
+          <div>
+            <button class="stats-btn" onclick="viewStats('${item.token}')">📊 Info</button>
+            <button class="copy-btn" onclick="navigator.clipboard.writeText('${item.link}')">Copiar</button>
+            <button class="delete-btn" onclick="deleteLink('${item.token}')">🗑️</button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    async function viewStats(token) {
+      const modal = document.getElementById("stats-modal");
+      const loading = document.getElementById("stats-loading");
+      const body = document.getElementById("stats-body");
+      const viewsEl = document.getElementById("stats-views");
+      const logsEl = document.getElementById("stats-logs");
+
+      modal.style.display = "flex";
+      loading.style.display = "block";
+      body.style.display = "none";
+      logsEl.innerHTML = "";
+
+      try {
+        // Fetch basic info (views)
+        const resMain = await fetch(`https://lozano-1690859356322-default-rtdb.firebaseio.com/pages/${token}.json`);
+        const dataMain = await resMain.json();
+
+        if (!dataMain) throw new Error("No data");
+
+        viewsEl.textContent = dataMain.views || 0;
+
+        // Fetch analytics details (logs)
+        const resLogs = await fetch(`https://lozano-1690859356322-default-rtdb.firebaseio.com/pages/${token}/analytics.json`);
+        const dataLogs = await resLogs.json(); // Returns object with IDs as keys
+
+        if (dataLogs) {
+          // Convertir objeto a array y ordenar por fecha reciente
+          const logs = Object.values(dataLogs).sort((a, b) => b.timestamp - a.timestamp);
+
+          if (logs.length === 0) {
+            logsEl.innerHTML = "<li>Sin visitas recientes</li>";
+          } else {
+            logs.forEach(log => {
+              const date = new Date(log.timestamp).toLocaleString();
+              // Simplificar referrer
+              let source = log.referrer;
+              if (!source || source === "") source = "Directo/Otros";
+              else if (source.includes("facebook")) source = "Facebook";
+              else if (source.includes("instagram")) source = "Instagram";
+
+              // Mostrar País si existe
+              const country = log.country || "Desconocido";
+
+              logsEl.innerHTML += `
+                            <li style="margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;">
+                                <div><strong>País:</strong> ${country}</div>
+                                <div style="font-size:13px;"><strong>Fuente:</strong> ${source}</div>
+                                <div style="font-size:12px; color:#888;">${date}</div>
+                            </li>
+                        `;
+            });
+          }
+        } else {
+          logsEl.innerHTML = "<li>Sin registro detallado aún.</li>";
+        }
+
+        loading.style.display = "none";
+        body.style.display = "block";
+
+      } catch (e) {
+        console.error(e);
+        loading.innerText = "Error al cargar estadísticas (posiblemente eliminado).";
+      }
+    }
+
+    function closeModal() {
+      document.getElementById("stats-modal").style.display = "none";
+    }
+
+    // Cerrar modal al tocar fuera
+    window.onclick = function (event) {
+      const modal = document.getElementById("stats-modal");
+      if (event.target == modal) {
+        closeModal();
+      }
+    }
+  </script>
+
+</body>
+
+</html>
