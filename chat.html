@@ -157,7 +157,8 @@
   </div>
 
   <script>
-    const URL = "https://lozano-1690859356322-default-rtdb.firebaseio.com/chat.json";
+    // URL optimizada: ordena por llave (tiempo) y limita a los últimos 50
+    const URL = "https://lozano-1690859356322-default-rtdb.firebaseio.com/chat.json?orderBy=\"$key\"&limitToLast=50";
     const user = localStorage.getItem("user");
     const chat = document.getElementById("chat");
 
@@ -175,8 +176,8 @@
 
         chat.innerHTML = "";
 
-        // Ordenar mensajes (Firebase devuelve objeto con keys ID, el orden suele ser cronológico, 
-        // pero mejor asegurar si pudiéramos, aquí asumimos orden de inserción)
+        // Al usar limitToLast, Firebase devuelve un objeto. 
+        // Las llaves de Firebase (-Oj...) mantienen el orden cronológico.
         for (let id in data) {
           const m = data[id];
           const isMe = m.user === user;
@@ -190,8 +191,6 @@
           `;
         }
 
-        // Scroll al fondo solo si estamos cerca del final o si es la primera carga?
-        // Por simplicidad, scroll al fondo siempre que llega mensaje nuevo.
         chat.scrollTop = chat.scrollHeight;
 
       } catch (e) {
@@ -204,15 +203,23 @@
       const text = input.value.trim();
       if (!text) return;
 
+      // Formato de hora estandarizado (HH:MM AM/PM)
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+
       const msg = {
         user,
         text,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        time: timeStr
       };
 
       try {
         input.value = ""; // Limpiar inmediato para UX
-        await fetch(URL, {
+        await fetch("https://lozano-1690859356322-default-rtdb.firebaseio.com/chat.json", {
           method: "POST",
           body: JSON.stringify(msg)
         });
