@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexHax - Dashboard</title>
+    <style>
+        :root {
+            --primary: #007aff;
+            --bg: #ffffff;
+            --text: #1d1d1f;
+            --secondary: #86868b;
+            --border: #f5f5f7;
+        }
+
+        body.dark {
+            --bg: #000000;
+            --text: #ffffff;
+            --border: #2c2c2e;
+            --secondary: #8e8e93;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            padding-top: 60px;
+        }
+
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            justify-content: space-between;
+        }
+
+        body.dark .top-nav {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .nav-title {
+            font-weight: 700;
+            font-size: 19px;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        #ov {
+            display: none;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            z-index: 200;
+            backdrop-filter: blur(4px);
+        }
+
+        #sb {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100%;
+            background: var(--bg);
+            z-index: 201;
+            transition: 0.3s;
+            padding: 40px 24px;
+        }
+
+        .sb-link {
+            display: block;
+            padding: 16px 0;
+            text-decoration: none;
+            color: var(--text);
+            font-size: 17px;
+            font-weight: 500;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sb-active {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .hero {
+            padding: 40px 24px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .user-name {
+            color: var(--primary);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            padding: 0 24px;
+        }
+
+        .card {
+            padding: 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: inherit;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            transition: 0.1s;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        body.dark .card {
+            box-shadow: none;
+            background: #1c1c1e;
+        }
+
+        .card:active {
+            transform: scale(0.98);
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .card p {
+            font-size: 14px;
+            color: var(--secondary);
+        }
+    </style>
+    <script>if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');</script>
+</head>
+
+<body>
+    <nav class="top-nav">
+        <div class="nav-title">LozanoTH</div><button class="menu-btn" onclick="tglM(1)"><svg width="24" height="24"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg></button>
+    </nav>
+    <div id="ov" onclick="tglM(0)"></div>
+    <div id="sb">
+        <h2 style="margin-bottom: 32px">Menú</h2>
+        <a href="dashboard.html" class="sb-link sb-active">Inicio</a>
+        <a href="chat.html" class="sb-link">Chat Global</a>
+        <a href="shortener.html" class="sb-link">Acortador</a>
+        <a href="panel.html" class="sb-link">Panel Académico</a>
+        <a href="profile.html" class="sb-link">Perfil</a>
+        <button id="logoutBtn"
+            style="margin-top: 40px; border:none; background:none; color:#ff3b30; font-size: 17px; font-weight: 600; cursor:pointer;">Cerrar
+            Sesión</button>
+    </div>
+
+    <div class="hero">
+        <h1>Hola, <span class="user-name" id="u">Cargando...</span></h1>
+        <p style="color:var(--secondary); font-size: 15px;">Bienvenido a tu panel personal.</p>
+    </div>
+
+    <div class="container" style="padding: 0 24px 40px;">
+        <div class="card" style="border-left: 4px solid var(--primary); margin-bottom: 32px;">
+            <h2
+                style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); margin-bottom: 8px;">
+                Versión Actual: v2.5.0</h2>
+            <h1 style="font-size: 24px; margin-bottom: 12px;">¡Bienvenidos al nuevo NexHax!</h1>
+            <p style="font-size: 15px; margin-bottom: 16px;">Hemos reconstruido la plataforma desde cero para ofrecerte
+                la máxima seguridad y el mejor diseño.</p>
+            <div style="display: flex; gap: 8px;">
+                <span
+                    style="background: var(--primary); color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">Estable</span>
+                <span
+                    style="background: var(--border); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">Seguro</span>
+            </div>
+        </div>
+
+        <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">Actualizaciones Recientes</h2>
+        <div class="grid">
+            <div class="card">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                    <h2 style="font-size: 16px;">🌓 Modo Oscuro Global</h2>
+                    <span style="font-size: 11px; opacity: 0.5;">Hoy</span>
+                </div>
+                <p>Ahora puedes elegir entre tema claro u oscuro desde tu Perfil. La preferencia se guarda
+                    automáticamente.</p>
+            </div>
+
+            <div class="card">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                    <h2 style="font-size: 16px;">🛡️ Firebase Auth & Google</h2>
+                    <span style="font-size: 11px; opacity: 0.5;">Hace 1 hora</span>
+                </div>
+                <p>Migración completa al sistema de autenticación oficial. Soporte para inicio de sesión con Google
+                    activado.</p>
+            </div>
+
+            <div class="card">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                    <h2 style="font-size: 16px;">💬 Mejoras en Chat</h2>
+                    <span style="font-size: 11px; opacity: 0.5;">Hace 2 horas</span>
+                </div>
+                <p>Función de respuesta a mensajes específicos y borrado temporal (ventana de 10 segundos) implementada.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        const config = { apiKey: "AIzaSyDp6IB_ZndLgMWamLzThb5EBqClYSQf2LM", authDomain: "lozano-1690859356322.firebaseapp.com", projectId: "lozano-1690859356322" };
+        const app = initializeApp(config);
+        const auth = getAuth(app);
+        if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark');
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.href = "index.html";
+            else document.getElementById("u").textContent = user.displayName || user.email.split('@')[0];
+        });
+        window.tglM = (s) => { document.getElementById("sb").style.left = s ? "0" : "-280px"; document.getElementById("ov").style.display = s ? "block" : "none"; };
+        document.getElementById("logoutBtn").onclick = () => { signOut(auth); localStorage.clear(); };
+    </script>
+</body>
+
+</html>
